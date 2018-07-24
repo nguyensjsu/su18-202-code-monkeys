@@ -7,7 +7,7 @@ Prerequisites:
 * Java 1.9 and above
 * Maven 3
 * gcloud sdk
-* datasource emulator
+* datastore emulator
 
 If you own a Mac, the commands are simple:
 
