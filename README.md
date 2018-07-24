@@ -35,9 +35,13 @@ gcloud beta emulators datastore start
 ```
 
 It will print out a command to run as follows:
-
+* Mac
 ```
 export DATASTORE_EMULATOR_HOST=localhost:8081
+```
+* Windows
+```
+set DATASTORE_EMULATOR_HOST=localhost:8081
 ```
 
 Make sure to run it from the terminal where you are starting up the application.
