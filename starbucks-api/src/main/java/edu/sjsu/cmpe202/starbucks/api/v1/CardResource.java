@@ -49,7 +49,7 @@ public class CardResource {
     public ResponseEntity addCard(@RequestBody Card card) {
         this.userService.insertUser(this.user);
         card.setUser(this.user.getProfile());
-        card.setBalance(20f);
+        card.setBalance(20f);//
         try {
             boolean success = cardService.addCard(card);
             if (success) {

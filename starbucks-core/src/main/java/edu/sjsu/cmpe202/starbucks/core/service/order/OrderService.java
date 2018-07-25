@@ -4,7 +4,7 @@ import edu.sjsu.cmpe202.starbucks.beans.Order;
 import edu.sjsu.cmpe202.starbucks.beans.User;
 
 public interface OrderService {
-    public void createOrder(Order order);
+    public boolean createOrder(Order order);
     public void deleteOrder();
     public void addItemInOrder();
     public void removeItemFromOrder();

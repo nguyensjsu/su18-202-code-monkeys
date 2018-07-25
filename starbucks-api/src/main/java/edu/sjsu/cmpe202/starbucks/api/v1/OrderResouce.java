@@ -8,10 +8,7 @@ import edu.sjsu.cmpe202.starbucks.core.service.order.OrderService;
 import edu.sjsu.cmpe202.starbucks.core.service.order.datastore.DatastoreOrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -28,7 +25,7 @@ public class OrderResouce {
     }
 
 
-    @RequestMapping(value = "/order/", method = RequestMethod.GET)
+    @RequestMapping(value = "/order", method = RequestMethod.GET)
     public ResponseEntity<Order> getOrder() {
         Order order = orderservice.getOrder(user);
         order.addItem(new Items("11","Coffee","order",10f));
@@ -37,5 +34,29 @@ public class OrderResouce {
         }
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/order", method = RequestMethod.PUT,consumes = "application/json")
+    public ResponseEntity<String> addOrder(@RequestBody Order order) {
+        /*this.userService.insertUser(this.user);
+        card.setUser(this.user.getProfile());
+        card.setBalance(20f);//
+        */try {
+            boolean success = orderservice.createOrder(order);
+            if (success) {
+                return new ResponseEntity(HttpStatus.ACCEPTED);
+            } else {
+                return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<String>("Order could not place", HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+
+
+
+
+
 }
-//w
+

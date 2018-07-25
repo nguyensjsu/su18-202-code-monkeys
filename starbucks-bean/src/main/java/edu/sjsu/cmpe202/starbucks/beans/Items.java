@@ -1,6 +1,8 @@
 package edu.sjsu.cmpe202.starbucks.beans;
 
-public class Items {
+import java.io.Serializable;
+
+public class Items implements Serializable {
 
     private String id;
     private String name;

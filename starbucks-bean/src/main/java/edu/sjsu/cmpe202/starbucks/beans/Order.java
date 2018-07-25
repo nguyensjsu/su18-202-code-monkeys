@@ -1,20 +1,27 @@
 package edu.sjsu.cmpe202.starbucks.beans;
 
+import com.sun.org.apache.xpath.internal.operations.Or;
+
 import java.awt.geom.QuadCurve2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Order {
+public class Order implements Serializable {
 
 	private String UserId;
     private String OrderId;
     private String ItemId;
-    private String Quantity;//i think we can t  proced further coz we dont have idea how she is design structure
-    private ArrayList<Items> itemList;//   item list with price   ArrayList<Item>  got it
+    private String Quantity;
+    private ArrayList<Items> itemList;
 
+    public Order() {
+
+    }
 
     public Order(String UserId, String OrderId) {
         this.UserId = UserId;
+        this.OrderId=OrderId;
         itemList = new ArrayList<Items>();
     }
 

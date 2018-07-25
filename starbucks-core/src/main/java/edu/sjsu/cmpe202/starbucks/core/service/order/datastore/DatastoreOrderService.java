@@ -8,11 +8,15 @@ public class DatastoreOrderService implements OrderService {
 
     private Order order;
 
-    public void createOrder(Order order){
-
+    public boolean createOrder(Order order){
+        if(order!=null){
+        this.order=order;
+        return true;
+        }
+        return false;
     }
     public void deleteOrder(){
-
+        this.order=null;
     }
     public void addItemInOrder(){
 
