@@ -40,8 +40,8 @@ public class ItemResource {
 
         @RequestMapping(value = "/item", method = RequestMethod.POST, consumes = "application/json")
         public ResponseEntity addItem(@RequestBody Item item) {
-            item.setName(item.getName());  //check this
-            item.setPrice(20f);
+            item.setName(item.getName());
+            //item.setPrice(20f);
             try {
                 boolean success = itemService.addItem(item);
                 if (success) {
@@ -56,7 +56,7 @@ public class ItemResource {
 
         @RequestMapping(value = "/item/{itemid}", method = RequestMethod.PUT, consumes = "application/json")
         public ResponseEntity updateItem(@RequestBody Item item) {
-            item.setName(item.getName()); //check this
+            item.setName(item.getName());
             boolean success = itemService.updateItem(item);
             if (success) {
                 return new ResponseEntity(HttpStatus.ACCEPTED);

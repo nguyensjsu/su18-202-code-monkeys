@@ -14,7 +14,7 @@ public class Item {
     }
 
     public Item(String id, String name, String desc) {
-        this(id, name, desc, 20f);
+        this(id, name, desc,0f );
     }
 
     public Item(String id, String name, String desc, double price) {
