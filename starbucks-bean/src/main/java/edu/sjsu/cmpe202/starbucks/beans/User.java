@@ -1,6 +1,7 @@
 package edu.sjsu.cmpe202.starbucks.beans;
 
 public class User {
+    private Long id;
     private String firstName;
     private String lastName;
     private String profile;
@@ -33,5 +34,13 @@ public class User {
 
     public void setProfile(String profile) {
         this.profile = profile;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

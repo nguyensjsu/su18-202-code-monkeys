@@ -9,10 +9,10 @@ import java.util.HashMap;
 
 public class Order implements Serializable {
 
+    private String id;
 	private String UserId;
     private String OrderId;
-    private String ItemId;
-    private String Quantity;
+    private String User;
     private ArrayList<Items> itemList;
 
     public Order() {
@@ -23,6 +23,14 @@ public class Order implements Serializable {
         this.UserId = UserId;
         this.OrderId=OrderId;
         itemList = new ArrayList<Items>();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getUserId() {
@@ -41,14 +49,28 @@ public class Order implements Serializable {
         this.OrderId = OrderId;
     }
 
-    public void addItem(Items item){
-        itemList.add(item);
+    public boolean addItem(Items item){
+        if(itemList!=null) {
+            itemList.add(item);
+        }
+         return false;
     }
 
 
-   public ArrayList<Items> getOrderItems(){
+
+    public ArrayList<Items> getItemList() {
         return itemList;
-   }
+    }
 
+    public void setItemList(ArrayList<Items> itemList) {
+        this.itemList = itemList;
+    }
 
+    public String getUser() {
+        return User;
+    }
+
+    public void setUser(String user) {
+        User = user;
+    }
 }
