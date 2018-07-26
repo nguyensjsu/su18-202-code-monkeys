@@ -3,21 +3,21 @@ package edu.sjsu.cmpe202.starbucks.beans;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 
 @JsonAutoDetect
-public class Items {
+public class Item {
     private String id;
     private String name;
     private String desc;
     private double price;
 
-    public Items(){
+    public Item(){
 
     }
 
-    public Items(String id, String name, String desc) {
+    public Item(String id, String name, String desc) {
         this(id, name, desc, 20f);
     }
 
-    public Items(String id, String name, String desc, double price) {
+    public Item(String id, String name, String desc, double price) {
         this.id = id;
         this.name = name;
         this.desc = desc;
