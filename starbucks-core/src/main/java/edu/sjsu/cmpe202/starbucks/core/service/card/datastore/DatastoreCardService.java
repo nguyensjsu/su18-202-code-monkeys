@@ -2,7 +2,6 @@ package edu.sjsu.cmpe202.starbucks.core.service.card.datastore;
 
 import com.google.cloud.datastore.*;
 import edu.sjsu.cmpe202.starbucks.beans.Card;
-import edu.sjsu.cmpe202.starbucks.beans.User;
 import edu.sjsu.cmpe202.starbucks.core.service.card.CardService;
 
 import java.util.ArrayList;
@@ -115,4 +114,6 @@ public class DatastoreCardService implements CardService {
     private Card getCardFromEntity(Entity entity) {
         return new Card(entity.getKey().getName(), "", entity.getString("cvv"), entity.getDouble("balance"));
     }
+
+
 }
