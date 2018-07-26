@@ -2,7 +2,10 @@ package edu.sjsu.cmpe202.starbucks.core.service.payments.datastore;
 
 import com.google.cloud.datastore.*;
 import edu.sjsu.cmpe202.starbucks.beans.Payment;
+import edu.sjsu.cmpe202.starbucks.beans.User;
+import edu.sjsu.cmpe202.starbucks.core.service.card.CardService;
 import edu.sjsu.cmpe202.starbucks.core.service.payments.PaymentService;
+import edu.sjsu.cmpe202.starbucks.core.service.payments.PaymentStatus;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.List;
 public class DatastorePaymentService implements PaymentService {
 
     private static final String Kind = "Payment";
+    private static final String Card = "Card";
     private Datastore datastore;
     private KeyFactory keyFactory;
 
@@ -61,6 +65,11 @@ public class DatastorePaymentService implements PaymentService {
 
     @Override
     public boolean addPayment(Payment payment) {
+        if (payment.getPay() == 0) {
+            return false;
+        }
+
+        String cardId = payment.getCardId();
         FullEntity paymentEntry = this.getEntity(payment);
         Entity e = datastore.add(paymentEntry);
         if (e == null)
@@ -69,6 +78,12 @@ public class DatastorePaymentService implements PaymentService {
     }
 
 
+
+    private Key getKey(String id) {
+        return this.datastore.newKeyFactory()
+                .setKind(Card)
+                .newKey(id);
+    }
     @Override
     public List<Payment> getAllPayments() {
 
@@ -138,5 +153,33 @@ public class DatastorePaymentService implements PaymentService {
             list.add(getPaymentFromEntity(resultList.next()));
         }
         return list;
+    }
+
+
+
+    public PaymentStatus performPaymentValidation(Payment payment, User user, CardService cardService){
+        if (payment.getOrderId() == null || payment.getOrderId().isEmpty()) {
+            return PaymentStatus.INVALID_OR_MISSING_ORDERID;
+
+        }
+        edu.sjsu.cmpe202.starbucks.beans.Card c = cardService.getCard(payment.getCardId(), user.getProfile());
+        if (c == null){
+            return  PaymentStatus.INVALID_OR_MISSING_CARDID;
+
+        }
+
+        if (c.getBalance() < payment.getPay()) {
+            return PaymentStatus.INSUFFICIENT_BALANCE;
+        }
+
+        c.setBalance(c.getBalance() - payment.getPay());
+        boolean balanceUpdated = cardService.updateCard(c);
+
+        if (!balanceUpdated) {
+            return PaymentStatus.FAILURE_IN_UPDATING_BALANCE;
+        }
+
+        return PaymentStatus.SUCCESFUL_CARD_UPDATE;
+
     }
 }

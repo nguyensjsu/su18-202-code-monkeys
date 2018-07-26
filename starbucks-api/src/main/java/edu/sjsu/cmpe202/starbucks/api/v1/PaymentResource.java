@@ -1,7 +1,11 @@
 package edu.sjsu.cmpe202.starbucks.api.v1;
 
 import edu.sjsu.cmpe202.starbucks.beans.Payment;
+import edu.sjsu.cmpe202.starbucks.beans.User;
+import edu.sjsu.cmpe202.starbucks.core.service.card.CardService;
+import edu.sjsu.cmpe202.starbucks.core.service.card.datastore.DatastoreCardService;
 import edu.sjsu.cmpe202.starbucks.core.service.payments.PaymentService;
+import edu.sjsu.cmpe202.starbucks.core.service.payments.PaymentStatus;
 import edu.sjsu.cmpe202.starbucks.core.service.payments.datastore.DatastorePaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +16,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 public class PaymentResource {
-        private PaymentService service;
+    private User user;
+
+    private PaymentService service;
+        private CardService cardService;
 
         public PaymentResource() {
+
             service = new DatastorePaymentService();
+            cardService = new DatastoreCardService();
+            user = new User("foo", "bar", "testprofile");
+
         }
 
 
@@ -43,17 +54,22 @@ public class PaymentResource {
 
         @RequestMapping(value = "/payment", method = RequestMethod.POST, consumes = "application/json")
         public ResponseEntity addPayment(@RequestBody Payment payment) {
-            //item.setPrice(20f);
             payment = new Payment(payment.getOrderId(), payment.getCardId(), payment.getPay());
+            PaymentStatus status = service.performPaymentValidation(payment, this.user, cardService);
+            if (status != PaymentStatus.SUCCESFUL_CARD_UPDATE) {
+                return new ResponseEntity<PaymentStatus>(status, HttpStatus.EXPECTATION_FAILED);
+            }
+
+
             try {
                 boolean success = service.addPayment(payment);
                 if (success) {
-                    return new ResponseEntity(HttpStatus.ACCEPTED);
+                    return new ResponseEntity<PaymentStatus>(PaymentStatus.SUCCESSFUL_PAYMENT_CARD_UPDATE, HttpStatus.ACCEPTED);
                 } else {
                     return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } catch (Exception e) {
-                return new ResponseEntity<String>("exception" + e.toString(), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<PaymentStatus>(PaymentStatus.EXCEPTION_IN_PAYMENT, HttpStatus.BAD_REQUEST);
             }
         }
 
