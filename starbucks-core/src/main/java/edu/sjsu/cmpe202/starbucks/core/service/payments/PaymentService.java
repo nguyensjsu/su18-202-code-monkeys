@@ -9,7 +9,8 @@ import java.util.List;
 public interface PaymentService {
     public boolean addPayment(Payment payment);
     public List<Payment> getAllPayments();
-    public List<Payment> getAllPayments(String cardId);
+    public List<Payment> getPaymentsByCardId(String cardId);
+    public List<Payment> getPaymentsInRange(Double low, Double high);
     public PaymentStatus performPaymentValidation(Payment payment, User user, CardService cardService);
 
 }

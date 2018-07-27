@@ -79,11 +79,7 @@ public class DatastorePaymentService implements PaymentService {
 
 
 
-    private Key getKey(String id) {
-        return this.datastore.newKeyFactory()
-                .setKind(Card)
-                .newKey(id);
-    }
+
     @Override
     public List<Payment> getAllPayments() {
 
@@ -96,8 +92,37 @@ public class DatastorePaymentService implements PaymentService {
 
     }
 
+
+
     @Override
-    public List<Payment> getAllPayments(String cardId) {
+    public List<Payment> getPaymentsInRange(Double low, Double high) {
+        if (low == null) {
+            low = 0.0;
+        }
+        List<Payment> allPayments = getAllPayments();
+        List<Payment> matchingPayments = new LinkedList<>();
+        for(Payment payment : allPayments) {
+            if (high != null) {
+                if (payment.getPay() >= low && payment.getPay() <= high) {
+                    matchingPayments.add(payment);
+                }
+            } else {
+                if (payment.getPay() >= low) {
+                    matchingPayments.add(payment);
+                }
+
+            }
+
+        }
+
+        return matchingPayments;
+
+
+    }
+
+
+    @Override
+    public List<Payment> getPaymentsByCardId(String cardId) {
 
         Query<Entity> query = Query.newEntityQueryBuilder()
                 .setKind(Kind)
