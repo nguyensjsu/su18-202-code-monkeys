@@ -51,6 +51,45 @@ public class PaymentResource {
     }
 
 
+    @RequestMapping(value = "/payment/{paymentId}", method = RequestMethod.DELETE, produces = "application/json")
+    public ResponseEntity deletePayment(@PathVariable("paymentId") String paymentId) {
+
+        Payment payment = service.getPaymentFromPaymentId(paymentId);
+        PaymentStatus status = service.performPaymentUpdate(payment, this.user, cardService, null);
+        if (status == PaymentStatus.SUCCESFUL_CARD_UPDATE) {
+            if (service.deletePayment(paymentId)) {
+                return new ResponseEntity<String>(status.toString() + paymentId, HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+
+    }
+
+
+    @RequestMapping(value = "/payment", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity updatePayment(@RequestBody Payment newPayment) {
+        try {
+            Payment oldPayment = service.getPaymentFromPaymentId(newPayment.getPaymentId());
+            if (oldPayment == null) {
+                return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            }
+            PaymentStatus status = service.performPaymentUpdate(oldPayment, this.user, cardService, newPayment);
+
+            if (status == PaymentStatus.SUCCESFUL_CARD_UPDATE) {
+                if (service.updatePayment(newPayment))
+                    return new ResponseEntity<String>("Updated:" + newPayment.getPaymentId() + " " + status, HttpStatus.OK);
+            }
+
+            return new ResponseEntity<String>(status.toString() , HttpStatus.EXPECTATION_FAILED);
+        } catch (Exception e) {
+            return new ResponseEntity<String>("Exception", HttpStatus.EXPECTATION_FAILED);
+
+        }
+
+    }
+
     @RequestMapping(value = "/payments", method = RequestMethod.GET, produces = "application/json")
         public ResponseEntity getAllPayments() {
 
