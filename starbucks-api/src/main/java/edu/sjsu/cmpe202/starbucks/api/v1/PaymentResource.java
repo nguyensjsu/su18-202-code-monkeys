@@ -29,14 +29,10 @@ public class PaymentResource {
 
         }
 
-    @RequestMapping(value = "/payment/{low}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getPaymentsInRange(@PathVariable("low") Double low) {
-            List<Payment> list = service.getPaymentsInRange(low, null);
-            return new ResponseEntity<List<Payment>>(list, HttpStatus.OK);
-    }
 
-    @RequestMapping(value = "/payment/{low}/{high}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getPaymentsInRange(@PathVariable("low") Double low, @PathVariable("high") Double high) {
+
+    @RequestMapping(value = "/payment", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getPaymentsInRange(@RequestParam(value ="low") Double low, @RequestParam("high") Double high) {
 
 
         List<Payment> list = service.getPaymentsInRange(low, high);
