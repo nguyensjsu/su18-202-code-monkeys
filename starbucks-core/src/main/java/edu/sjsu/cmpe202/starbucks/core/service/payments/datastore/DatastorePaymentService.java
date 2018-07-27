@@ -120,6 +120,37 @@ public class DatastorePaymentService implements PaymentService {
 
     }
 
+    @Override
+    public boolean deletePayment(String paymentId) {
+        Key key = this.datastore.newKeyFactory()
+                .setKind(Kind)
+                .newKey(paymentId);
+        try {
+            Entity e = datastore.get(key);
+            if (e == null) {
+                return false;
+            }
+            this.datastore.delete(key);
+            return true;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean updatePayment(Payment payment) {
+        Key key = this.datastore.newKeyFactory()
+                .setKind(Kind)
+                .newKey(payment.getPaymentId());
+        if (datastore.get(key) != null) {
+            Entity e = this.getEntity(payment);
+            datastore.update(e);
+        }
+        return false;
+    }
+
 
     @Override
     public List<Payment> getPaymentsByCardId(String cardId) {
@@ -131,6 +162,13 @@ public class DatastorePaymentService implements PaymentService {
         List<Payment> paymentList = entitiesToPayments(resultList);
         return filterListByCardId(paymentList, cardId);
 
+    }
+
+    @Override
+    public Payment getPaymentFromPaymentId(String paymentId) {
+        List<Payment> allPayments = getAllPayments();
+        if (allPayments.size() == 0) return null;
+        return filterListByPaymentId(allPayments, paymentId).get(0);
     }
 
 
@@ -180,6 +218,37 @@ public class DatastorePaymentService implements PaymentService {
         return list;
     }
 
+    /**
+     * When a payment is removed or updated, card balance has to be updated
+     * @param oldPayment
+     * @param user
+     * @param cardService
+     * @param newPayment
+
+     * @return
+     */
+    public PaymentStatus performPaymentUpdate(Payment oldPayment, User user, CardService cardService, Payment newPayment) {
+        edu.sjsu.cmpe202.starbucks.beans.Card c = cardService.getCard(oldPayment.getCardId(), user.getProfile());
+     if (getPaymentFromPaymentId(oldPayment.getPaymentId()) ==null) {
+       return PaymentStatus.FAILURE_IN_UPDATING_BALANCE;
+     }
+      double newBalance = c.getBalance() + oldPayment.getPay();
+      c.setBalance(c.getBalance() + oldPayment.getPay());
+      if (newBalance > 0) {
+        if (newPayment != null) {
+          newBalance = newBalance - newPayment.getPay();
+          if (newBalance >= 0) {
+            c.setBalance(c.getBalance() - newPayment.getPay());
+          } else {
+            return PaymentStatus.INSUFFICIENT_BALANCE;
+          }
+        }
+      }
+      cardService.updateCard(c);
+
+      return PaymentStatus.SUCCESFUL_CARD_UPDATE;
+
+    }
 
 
     public PaymentStatus performPaymentValidation(Payment payment, User user, CardService cardService){

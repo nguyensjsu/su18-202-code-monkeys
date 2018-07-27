@@ -10,7 +10,11 @@ public interface PaymentService {
     public boolean addPayment(Payment payment);
     public List<Payment> getAllPayments();
     public List<Payment> getPaymentsByCardId(String cardId);
+    public Payment getPaymentFromPaymentId(String paymentId);
     public List<Payment> getPaymentsInRange(Double low, Double high);
     public PaymentStatus performPaymentValidation(Payment payment, User user, CardService cardService);
+    public PaymentStatus performPaymentUpdate(Payment oldPayment, User user, CardService cardService, Payment newPayment);
+    public boolean deletePayment(String paymentId);
+    public boolean updatePayment(Payment payment);
 
 }
