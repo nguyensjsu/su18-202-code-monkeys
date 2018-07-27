@@ -1,7 +1,9 @@
 package edu.sjsu.cmpe202.starbucks.core.service.order.datastore;
 
 import com.google.cloud.datastore.*;
+import edu.sjsu.cmpe202.starbucks.beans.Card;
 import edu.sjsu.cmpe202.starbucks.beans.Order;
+import edu.sjsu.cmpe202.starbucks.beans.User;
 import edu.sjsu.cmpe202.starbucks.core.service.order.OrderService;
 
 import java.util.ArrayList;
@@ -20,12 +22,14 @@ public class DatastoreOrderService implements OrderService {
 
     //create Order
     public boolean createOrder(Order order) throws Exception{
+       /* if(order ==null)
+            throw new Exception("order already exists from CreateOrder");
        if (this.exists(order)) {
             throw new Exception("order already exists");
         }
-
-        FullEntity newCard = this.getEntity(order);
-        Entity e = datastore.add(newCard);
+*/
+        FullEntity newOrder = this.getEntity(order);
+        Entity e = datastore.add(newOrder);
         if (e == null) {
             return false;
         }
@@ -34,14 +38,13 @@ public class DatastoreOrderService implements OrderService {
     }
 
 
-
-        //check order if already exists
-        public boolean exists(Order order) {
-            Order o = this.getOrder(order.getId(), order.getUser());
-            if (o == null) {
-                return false;
-            }
-            return true;
+    //check order if already exists
+    public boolean exists(Order order) {
+        Order o = this.getOrder(order.getOrderId(),order.getUser());
+    if (o == null) {
+        return false;
+        }
+        return true;
     }
 
     //delete order
@@ -50,9 +53,9 @@ public class DatastoreOrderService implements OrderService {
             return false;
         }
 
-        Key cardKey = getKey(order);
+        Key orderKey = getKey(order);
 
-        this.datastore.delete(cardKey);
+        this.datastore.delete(orderKey);
         return true;
     }
 
@@ -66,19 +69,21 @@ public class DatastoreOrderService implements OrderService {
 
     }
 
+
     //to get single order based on id
-    public Order getOrder(String order, String user){
-        Order temp = new Order(order, user);
-        Key cardKey = this.getKey(temp);
-        Entity e = datastore.get(cardKey);
+    public Order getOrder(String order,String user){
+        Order temp = new Order( order, user );
+        Key orderKey = this.getKey(temp);
+        Entity e = datastore.get(orderKey);
 
         if (e == null) {
             return null;
         }
 
         Order o = this.getOrderFromEntity(e);
-        o.setId(order);
+        o.setOrderId(order);
         o.setUser(user);
+       // o.setItem(item);
 
         return o;
     }
@@ -107,23 +112,22 @@ public class DatastoreOrderService implements OrderService {
         return this.datastore.newKeyFactory()
                 .setKind(Kind)
                 .addAncestor(PathElement.of("User", order.getUser()))
-                .newKey(order.getId());
+
+                .newKey(order.getOrderId());
     }
 
-    //need to check
     private Entity getEntity(Order order) {
-        Key cardKey = getKey(order);
+        Key orderKey = getKey(order);
 
-        Entity newCard = Entity.newBuilder(cardKey)
-                .set("orderno", order.getOrderId())
-                .set("userid",order.getUserId())
+        Entity newOrder = Entity.newBuilder(orderKey)
+                //.set("item",order.getItem())
                 .build();
-
-        return newCard;
+        return newOrder;
     }
 
-    //need to check
     private Order getOrderFromEntity(Entity entity) {
-        return new Order(entity.getKey().getName(), "");
+
+        return new Order( entity.getKey().getName(),"");
+
     }
 }

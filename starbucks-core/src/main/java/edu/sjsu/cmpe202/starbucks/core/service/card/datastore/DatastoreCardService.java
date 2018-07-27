@@ -75,7 +75,7 @@ public class DatastoreCardService implements CardService {
         return c;
     }
 
-    public List<Card> getCards(String user) {//
+    public List<Card> getCards(String user) {
         Query<Entity> query = Query.newEntityQueryBuilder()
                 .setKind(Kind)
                 .setFilter(StructuredQuery.PropertyFilter.hasAncestor(

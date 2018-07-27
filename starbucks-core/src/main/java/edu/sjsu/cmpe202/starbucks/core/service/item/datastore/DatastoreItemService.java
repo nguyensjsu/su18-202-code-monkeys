@@ -94,7 +94,7 @@ public class DatastoreItemService implements ItemService {
         Key itemsKey = getKey(item);
 
         Entity newItems = Entity.newBuilder(itemsKey)
-                .set("name", item.getName())
+                .set("user", item.getName())
                 .set("desc", item.getDesc())
                 .set("price", item.getPrice())
                 .build();
