@@ -30,9 +30,19 @@ public class PaymentResource {
         }
 
 
+
+    @RequestMapping(value = "/payment", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity getPaymentsInRange(@RequestParam(value ="low") Double low, @RequestParam("high") Double high) {
+
+
+        List<Payment> list = service.getPaymentsInRange(low, high);
+        return new ResponseEntity<List<Payment>>(list, HttpStatus.OK);
+
+    }
+
     @RequestMapping(value = "/payment/card/{cardid}", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getItems(@PathVariable("cardid") String id) {
-        List<Payment> p = service.getAllPayments(id);
+    public ResponseEntity getPaymentsByCardIds(@PathVariable("cardid") String id) {
+        List<Payment> p = service.getPaymentsByCardId(id);
         if (p == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -41,8 +51,8 @@ public class PaymentResource {
     }
 
 
-    @RequestMapping(value = "/allpayments", method = RequestMethod.GET, produces = "application/json")
-        public ResponseEntity getItems() {
+    @RequestMapping(value = "/payments", method = RequestMethod.GET, produces = "application/json")
+        public ResponseEntity getAllPayments() {
 
             List<Payment> p = service.getAllPayments();
             if (p == null) {
