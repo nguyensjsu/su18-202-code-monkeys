@@ -1,9 +1,12 @@
 package edu.sjsu.cmpe202.starbucks.api.v1;
 
+import edu.sjsu.cmpe202.starbucks.beans.Order;
 import edu.sjsu.cmpe202.starbucks.beans.Payment;
 import edu.sjsu.cmpe202.starbucks.beans.User;
 import edu.sjsu.cmpe202.starbucks.core.service.card.CardService;
 import edu.sjsu.cmpe202.starbucks.core.service.card.datastore.DatastoreCardService;
+import edu.sjsu.cmpe202.starbucks.core.service.order.OrderService;
+import edu.sjsu.cmpe202.starbucks.core.service.order.datastore.DatastoreOrderService;
 import edu.sjsu.cmpe202.starbucks.core.service.payments.PaymentService;
 import edu.sjsu.cmpe202.starbucks.core.service.payments.PaymentStatus;
 import edu.sjsu.cmpe202.starbucks.core.service.payments.datastore.DatastorePaymentService;
@@ -20,12 +23,14 @@ public class PaymentResource {
 
     private PaymentService service;
         private CardService cardService;
+        private OrderService orderService;
 
         public PaymentResource() {
 
             service = new DatastorePaymentService();
             cardService = new DatastoreCardService();
             user = new User("foo", "bar", "testprofile");
+            orderService = new DatastoreOrderService();
 
         }
 
@@ -104,6 +109,10 @@ public class PaymentResource {
         @RequestMapping(value = "/payment", method = RequestMethod.POST, consumes = "application/json")
         public ResponseEntity addPayment(@RequestBody Payment payment) {
             payment = new Payment(payment.getOrderId(), payment.getCardId(), payment.getPay());
+            String orderId = payment.getOrderId();
+            Order order = orderService.getOrder(orderId, this.user.getProfile());
+            if (order == null)
+                return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
             PaymentStatus status = service.performPaymentValidation(payment, this.user, cardService);
             if (status != PaymentStatus.SUCCESFUL_CARD_UPDATE) {
                 return new ResponseEntity<PaymentStatus>(status, HttpStatus.EXPECTATION_FAILED);
