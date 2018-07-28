@@ -26,7 +26,7 @@ public class CardResource {
     }
 
     @RequestMapping(value = "/card/{card}", method = RequestMethod.GET)
-    public ResponseEntity<Card> getCard(@PathVariable("card") String id) {
+    public ResponseEntity<Card> getCard(@PathVariable("card") String id, @RequestAttribute(name ="user") User user) {
         Card c = cardService.getCard(id, user.getProfile());
         if (c == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -36,7 +36,7 @@ public class CardResource {
     }
 
     @RequestMapping(value = "/cards", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getCards() {
+    public ResponseEntity getCards(@RequestAttribute(name ="user") User user) {
         List<Card> c = cardService.getCards(user.getProfile());
         if (c == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -46,10 +46,10 @@ public class CardResource {
     }
 
     @RequestMapping(value = "/card", method = RequestMethod.POST, consumes = "application/json")
-    public ResponseEntity addCard(@RequestBody Card card) {
-        this.userService.insertUser(this.user);
-        card.setUser(this.user.getProfile());
-        card.setBalance(20f);//
+    public ResponseEntity addCard(@RequestBody Card card, @RequestAttribute(name ="user") User user) {
+        this.userService.insertUser(user);
+        card.setUser(user.getProfile());
+        card.setBalance(20f);
         try {
             boolean success = cardService.addCard(card);
             if (success) {
@@ -63,8 +63,16 @@ public class CardResource {
     }
 
     @RequestMapping(value = "/card/{card}", method = RequestMethod.PUT, consumes = "application/json")
-    public ResponseEntity updateCard(@RequestBody Card card) {
-        card.setUser(this.user.getProfile());
+    public ResponseEntity updateCard(@RequestBody Card card, @RequestAttribute(name ="user") User user) {
+        card.setUser(user.getProfile());
+
+        // Make sure that the balance is not being changed.
+        Card c = cardService.getCard(card.getId(), user.getProfile());
+        if (c == null) {
+            card.setBalance(20f);
+        } else {
+            card.setBalance(c.getBalance());
+        }
         boolean success = cardService.updateCard(card);
         if (success) {
             return new ResponseEntity(HttpStatus.ACCEPTED);
@@ -74,7 +82,7 @@ public class CardResource {
     }
 
     @RequestMapping(value = "/card/{card}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteCard(@PathVariable("card") String id) {
+    public ResponseEntity deleteCard(@PathVariable("card") String id, @RequestAttribute(name ="user") User user) {
         Card c = new Card(id, user.getProfile(), "", 0f);
         boolean success = cardService.deleteCard(c);
         if (success) {
@@ -83,6 +91,4 @@ public class CardResource {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }

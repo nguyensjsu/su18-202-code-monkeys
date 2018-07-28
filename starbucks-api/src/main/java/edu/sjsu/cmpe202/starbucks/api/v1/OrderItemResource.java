@@ -21,7 +21,6 @@ public class OrderItemResource {
     private UserService userService;
 
     public OrderItemResource() {
-        this.user = new User("foo", "bar", "testprofile");
         orderItemService = new DatastoreOrderItemService();
         userService = new DatastoreUserService();
     }
