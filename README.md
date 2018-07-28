@@ -4,7 +4,7 @@
 
 Prerequisites:
 
-* Java 1.9 and above
+* Java 1.8 and above
 * Maven 3
 * gcloud sdk
 * datastore emulator
