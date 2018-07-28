@@ -30,13 +30,11 @@ public class OrderResource {
 
     }
 
-
     //list the order with particular id
     @RequestMapping(value = "/order/{order}", method = RequestMethod.GET)
     public ResponseEntity<Order> getOrder(@PathVariable("order") String id) {
-        Order order = orderservice.getOrder(id,user.getProfile());
+        Order order = orderservice.getOrder(id, user.getProfile());
 
-       // order.addItem(new Items("11","Coffee","order",10f));
         if(order==null){
             return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -58,13 +56,11 @@ public class OrderResource {
     //add new order
     @RequestMapping(value = "/order", method = RequestMethod.POST,consumes = "application/json")
     public ResponseEntity addOrder(@RequestBody Order order) {
-        if(order== null)
-            return new ResponseEntity<String>("Order is null ", HttpStatus.BAD_REQUEST);
         this.userService.insertUser(this.user);
         order.setUser(this.user.getProfile());
 
         try {
-            boolean success =orderservice.createOrder(order);
+            boolean success = orderservice.createOrder(order);
             if (success) {
                 return new ResponseEntity(HttpStatus.ACCEPTED);
             } else {
@@ -76,36 +72,24 @@ public class OrderResource {
 
     }
 
-    /*
-    //add item in order
-    @RequestMapping(value = "/order/", method = RequestMethod.PUT, consumes = "application/json")
-    public ResponseEntity addItem(@RequestBody Items item) {
-        Order order = orderservice.getOrder(user);
-        boolean success=order.addItem(item);
-        if (success) {
-            return new ResponseEntity(HttpStatus.ACCEPTED);
-        } else {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-     }
+    //list the order with particular id
+    @RequestMapping(value = "/order/{order}", method = RequestMethod.PUT)
+    public ResponseEntity updateOrder(@RequestBody Order order, @PathVariable("order") String id) {
+        this.userService.insertUser(this.user);
+        order.setUser(this.user.getProfile());
+        order.setId(id);
 
-     //remove item in order
-    @RequestMapping(value = "/order/", method = RequestMethod.PUT, consumes = "application/json")
-    public ResponseEntity removeItem(@RequestBody Items item) {
-        Order order = orderservice.getOrder(user);
-        boolean success=order.removeItem(item);
-        if (success) {
-            return new ResponseEntity(HttpStatus.ACCEPTED);
-        } else {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        boolean success = orderservice.updateOrder(order);
+        if(!success){
+            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-     }
-    */
+        return new ResponseEntity<>(order, HttpStatus.OK);
+    }
 
     //DELETE AN ORDER
     @RequestMapping(value = "/order/{order}", method = RequestMethod.DELETE)
     public ResponseEntity deleteOrder(@PathVariable("order") String id) {
-        Order order = new Order(id,user.getProfile());
+        Order order = new Order(id, user.getProfile());
         boolean success = orderservice.deleteOrder(order);
         if (success) {
             return new ResponseEntity(HttpStatus.OK);

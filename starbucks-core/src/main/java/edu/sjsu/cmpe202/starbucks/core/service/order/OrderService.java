@@ -9,8 +9,8 @@ import java.util.List;
 public interface OrderService {
     public boolean createOrder(Order order)throws Exception;
     public boolean deleteOrder(Order Order);
-    public void addItemInOrder();
-    public void removeItemFromOrder();
+    public boolean updateOrder(Order order);
     public Order getOrder(String order, String user);
     public List<Order> getOrders(String user);
 }
+
