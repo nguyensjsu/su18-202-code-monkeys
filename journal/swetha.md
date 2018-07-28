@@ -19,7 +19,7 @@
 1. Worked on payments API.
 2. Waited for the team member to finish order API 
 3. Completed the payments API.
-4. Blocked until finishing the order API. Hence created a payment API that was independent of order API. 
+4. Created a payment API that was independent of order API so that we are not blocked.
 ### XP Values
 1. Team did not have any merge conflicts.
 2. Team helped each other when ever needed to complete the tasks on time.
