@@ -1,11 +1,12 @@
 package edu.sjsu.cmpe202.starbucks.api.v1;
 
-import edu.sjsu.cmpe202.starbucks.beans.Card;
-import edu.sjsu.cmpe202.starbucks.beans.Item;
-import edu.sjsu.cmpe202.starbucks.beans.Order;
-import edu.sjsu.cmpe202.starbucks.beans.User;
+import edu.sjsu.cmpe202.starbucks.beans.*;
+import edu.sjsu.cmpe202.starbucks.core.service.item.ItemService;
+import edu.sjsu.cmpe202.starbucks.core.service.item.datastore.DatastoreItemService;
 import edu.sjsu.cmpe202.starbucks.core.service.order.OrderService;
 import edu.sjsu.cmpe202.starbucks.core.service.order.datastore.DatastoreOrderService;
+import edu.sjsu.cmpe202.starbucks.core.service.orderitem.OrderItemService;
+import edu.sjsu.cmpe202.starbucks.core.service.orderitem.datastore.DatastoreOrderItemService;
 import edu.sjsu.cmpe202.starbucks.core.service.user.UserService;
 import edu.sjsu.cmpe202.starbucks.core.service.user.datastore.DatastoreUserService;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,16 @@ public class OrderResource {
 
     private User user;
     private OrderService orderservice;
+    private OrderItemService orderItemService;
     private UserService userService;
+    private ItemService itemService;
 
     public OrderResource(){
         this.user = new User("foo", "bar", "testprofile");
         orderservice = new DatastoreOrderService();
         userService =new DatastoreUserService();
-
+        orderItemService = new DatastoreOrderItemService();
+        itemService = new DatastoreItemService();
     }
 
     //list the order with particular id
@@ -98,7 +102,29 @@ public class OrderResource {
         }
     }
 
+    //list the order with particular id
+    @RequestMapping(value = "/order/{order}/total", method = RequestMethod.GET)
+    public ResponseEntity<Order> getOrderTotal(@PathVariable("order") String id) {
+        Order order = orderservice.getOrder(id, user.getProfile());
+        if(order==null){
+            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
+        List<OrderItem> items = orderItemService.getItems(order.getId());
+        System.out.println(items);
+        double total = 0;
+        for (OrderItem item : items) {
+            System.out.println(item.getItemId());
+            Item i  = itemService.getItems(item.getItemId());
+            System.out.print(i);
+            if (i != null) {
+                total += item.getQuantity() * i.getPrice();
+            }
+        }
+
+        order.setTotalAmount(total);
+        return new ResponseEntity<>(order, HttpStatus.OK);
+    }
 
 
 }
