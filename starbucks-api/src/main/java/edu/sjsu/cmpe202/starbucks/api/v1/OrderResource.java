@@ -20,14 +20,12 @@ import java.util.List;
 
 public class OrderResource {
 
-    private User user;
     private OrderService orderservice;
     private OrderItemService orderItemService;
     private UserService userService;
     private ItemService itemService;
 
     public OrderResource(){
-        this.user = new User("foo", "bar", "testprofile");
         orderservice = new DatastoreOrderService();
         userService =new DatastoreUserService();
         orderItemService = new DatastoreOrderItemService();
@@ -36,7 +34,7 @@ public class OrderResource {
 
     //list the order with particular id
     @RequestMapping(value = "/order/{order}", method = RequestMethod.GET)
-    public ResponseEntity<Order> getOrder(@PathVariable("order") String id) {
+    public ResponseEntity<Order> getOrder(@PathVariable("order") String id, @RequestAttribute(name ="user") User user) {
         Order order = orderservice.getOrder(id, user.getProfile());
 
         if(order==null){
@@ -47,7 +45,7 @@ public class OrderResource {
 
     //list all orders
     @RequestMapping(value = "/orders", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity getOrders() {
+    public ResponseEntity getOrders(@RequestAttribute(name ="user") User user) {
         List<Order> o = orderservice.getOrders(user.getProfile());
 
         if (o == null) {
@@ -59,9 +57,9 @@ public class OrderResource {
 
     //add new order
     @RequestMapping(value = "/order", method = RequestMethod.POST,consumes = "application/json")
-    public ResponseEntity addOrder(@RequestBody Order order) {
-        this.userService.insertUser(this.user);
-        order.setUser(this.user.getProfile());
+    public ResponseEntity addOrder(@RequestBody Order order, @RequestAttribute(name ="user") User user) {
+        this.userService.insertUser(user);
+        order.setUser(user.getProfile());
 
         try {
             boolean success = orderservice.createOrder(order);
@@ -78,9 +76,9 @@ public class OrderResource {
 
     //list the order with particular id
     @RequestMapping(value = "/order/{order}", method = RequestMethod.PUT)
-    public ResponseEntity updateOrder(@RequestBody Order order, @PathVariable("order") String id) {
-        this.userService.insertUser(this.user);
-        order.setUser(this.user.getProfile());
+    public ResponseEntity updateOrder(@RequestBody Order order, @PathVariable("order") String id, @RequestAttribute(name ="user") User user) {
+        this.userService.insertUser(user);
+        order.setUser(user.getProfile());
         order.setId(id);
 
         boolean success = orderservice.updateOrder(order);
@@ -92,7 +90,7 @@ public class OrderResource {
 
     //DELETE AN ORDER
     @RequestMapping(value = "/order/{order}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteOrder(@PathVariable("order") String id) {
+    public ResponseEntity deleteOrder(@PathVariable("order") String id, @RequestAttribute(name ="user") User user) {
         Order order = new Order(id, user.getProfile());
         boolean success = orderservice.deleteOrder(order);
         if (success) {
@@ -104,19 +102,16 @@ public class OrderResource {
 
     //list the order with particular id
     @RequestMapping(value = "/order/{order}/total", method = RequestMethod.GET)
-    public ResponseEntity<Order> getOrderTotal(@PathVariable("order") String id) {
+    public ResponseEntity<Order> getOrderTotal(@PathVariable("order") String id, @RequestAttribute(name ="user") User user) {
         Order order = orderservice.getOrder(id, user.getProfile());
         if(order==null){
             return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         List<OrderItem> items = orderItemService.getItems(order.getId());
-        System.out.println(items);
         double total = 0;
         for (OrderItem item : items) {
-            System.out.println(item.getItemId());
             Item i  = itemService.getItems(item.getItemId());
-            System.out.print(i);
             if (i != null) {
                 total += item.getQuantity() * i.getPrice();
             }

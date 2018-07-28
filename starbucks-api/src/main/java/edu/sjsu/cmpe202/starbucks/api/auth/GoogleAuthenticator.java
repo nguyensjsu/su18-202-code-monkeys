@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/api/v1/cards", "/api/v1/card", "/api/v1/card/*"})
+@WebFilter(urlPatterns = {"/api/v1/*"})
 public class GoogleAuthenticator extends OncePerRequestFilter {
 
     private static GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())

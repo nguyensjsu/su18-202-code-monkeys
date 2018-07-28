@@ -19,7 +19,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 public class PaymentResource {
-    private User user;
 
     private PaymentService service;
         private CardService cardService;
@@ -29,7 +28,6 @@ public class PaymentResource {
 
             service = new DatastorePaymentService();
             cardService = new DatastoreCardService();
-            user = new User("foo", "bar", "testprofile");
             orderService = new DatastoreOrderService();
 
         }
@@ -57,10 +55,10 @@ public class PaymentResource {
 
 
     @RequestMapping(value = "/payment/{paymentId}", method = RequestMethod.DELETE, produces = "application/json")
-    public ResponseEntity deletePayment(@PathVariable("paymentId") String paymentId) {
+    public ResponseEntity deletePayment(@PathVariable("paymentId") String paymentId, @RequestAttribute(name ="user") User user) {
 
         Payment payment = service.getPaymentFromPaymentId(paymentId);
-        PaymentStatus status = service.performPaymentUpdate(payment, this.user, cardService, null);
+        PaymentStatus status = service.performPaymentUpdate(payment, user, cardService, null);
         if (status == PaymentStatus.SUCCESFUL_CARD_UPDATE) {
             if (service.deletePayment(paymentId)) {
                 return new ResponseEntity<String>(status.toString() + paymentId, HttpStatus.OK);
@@ -68,19 +66,17 @@ public class PaymentResource {
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-
     }
 
 
     @RequestMapping(value = "/payment", method = RequestMethod.PUT, produces = "application/json")
-    public ResponseEntity updatePayment(@RequestBody Payment newPayment) {
+    public ResponseEntity updatePayment(@RequestBody Payment newPayment, @RequestAttribute(name ="user") User user) {
         try {
             Payment oldPayment = service.getPaymentFromPaymentId(newPayment.getPaymentId());
             if (oldPayment == null) {
                 return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
             }
-            PaymentStatus status = service.performPaymentUpdate(oldPayment, this.user, cardService, newPayment);
+            PaymentStatus status = service.performPaymentUpdate(oldPayment, user, cardService, newPayment);
 
             if (status == PaymentStatus.SUCCESFUL_CARD_UPDATE) {
                 if (service.updatePayment(newPayment))
@@ -107,13 +103,13 @@ public class PaymentResource {
         }
 
         @RequestMapping(value = "/payment", method = RequestMethod.POST, consumes = "application/json")
-        public ResponseEntity addPayment(@RequestBody Payment payment) {
+        public ResponseEntity addPayment(@RequestBody Payment payment, @RequestAttribute(name ="user") User user) {
             payment = new Payment(payment.getOrderId(), payment.getCardId(), payment.getPay());
             String orderId = payment.getOrderId();
-            Order order = orderService.getOrder(orderId, this.user.getProfile());
+            Order order = orderService.getOrder(orderId, user.getProfile());
             if (order == null)
                 return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-            PaymentStatus status = service.performPaymentValidation(payment, this.user, cardService);
+            PaymentStatus status = service.performPaymentValidation(payment, user, cardService);
             if (status != PaymentStatus.SUCCESFUL_CARD_UPDATE) {
                 return new ResponseEntity<PaymentStatus>(status, HttpStatus.EXPECTATION_FAILED);
             }
