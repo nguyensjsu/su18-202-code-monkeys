@@ -67,7 +67,7 @@ public class ItemResource {
 
         @RequestMapping(value = "/item/{itemid}", method = RequestMethod.DELETE)
         public ResponseEntity deleteItem(@PathVariable("itemid") String id) {
-            Item i = new Item(id, "", "", 0f);  //check this
+            Item i = new Item(id, "", "", 0f);
             boolean success = itemService.deleteItem(i);
             if (success) {
                 return new ResponseEntity(HttpStatus.OK);
