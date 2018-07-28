@@ -67,3 +67,24 @@ mvn clean spring-boot:run
 Open a browser and hit:
 
 [http://localhost:8080/_ah/health](http://localhost:8080/_ah/health)
+
+
+### Architecture
+![alt text](./diagrams/deployment.jpg)
+
+
+### Components
+![alt text](./diagrams/component.jpg)
+
+### Design considerations
+The following were the design considerations taken while coming up with the structure of the project:
+
+* The code was split out into API, Bean and Core modules.
+ * Bean contains bean objects of all entities that are being persisted in the database.
+ * Core contains business logic of how the datastore is supposed to be manipulated
+ * API contains the resource files of the API specifications
+* Each module contains only the minimal dependencies it requires to be built. Parent pom contains no dependencies.
+* All manipulations of the datastore is only via interfaces meaning that all resource code can remain as is when a datastore is changed.
+* APIs are versioned and breaking changes of the API would go into a newer version. This poses minimal impact to customers.
+* All API resources have their own business logic interface. The person implementing a new API wouldnt have to modify any existing code to implement the new API. This ensured zero merge conflicts during development.
+
